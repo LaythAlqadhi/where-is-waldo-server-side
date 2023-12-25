@@ -1,0 +1,16 @@
+{
+  "extends": ["airbnb-base", "prettier"],
+  "plugins": ["prettier"],
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "jest": true
+  },
+  "rules": {
+    "prettier/prettier": ["error"],
+    "no-console": "off",
+    "consistent-return": "off",
+    "no-unused-vars": ["error", { "args": "none" }]
+  },
+  "ignorePatterns": ["www.js", "node_modules/"]
+}

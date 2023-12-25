@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const mongoose = require('mongoose');
 const request = require('supertest');
 const initializeMongoServer = require('../db/mongoConfigTesting');
@@ -20,44 +20,42 @@ afterAll(async () => {
 
 describe('Test game routes', () => {
   let id;
-  
-  test("character route should add a new character", done => {
+
+  test('character route should add a new character', (done) => {
     request(app)
-      .post("/character")
-      .send({ name: "Character", coordinates: { x: 50, y: 50 } })
+      .post('/character')
+      .send({ name: 'Character', coordinates: { x: 50, y: 50 } })
       .expect(200, done);
   });
-  
-  test("start route should initiate a new game", done => {
+
+  test('start route should initiate a new game', (done) => {
     request(app)
-      .get("/start")
+      .get('/start')
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        
+
         id = res.body.id;
-        
+
         done();
       });
   });
 
-  test("validate route should validate character coordinates", done => {
+  test('validate route should validate character coordinates', (done) => {
     request(app)
       .post(`/validate/${id}`)
-      .send({ name: "Character", coordinates: { x: 50, y: 50 } })
+      .send({ name: 'Character', coordinates: { x: 50, y: 50 } })
       .expect(200, done);
   });
 
-  test("end route should end the game or update the name based on conditions", done => {
+  test('end route should end the game or update the name based on conditions', (done) => {
     request(app)
       .post(`/end/${id}`)
-      .send({ name: "John Doe" })
+      .send({ name: 'John Doe' })
       .expect(200, done);
   });
 
-  test("leaderboard route should retrieve the leaderboard", done => {
-    request(app)
-      .get("/leaderboard")
-      .expect(200, done);
+  test('leaderboard route should retrieve the leaderboard', (done) => {
+    request(app).get('/leaderboard').expect(200, done);
   });
 });

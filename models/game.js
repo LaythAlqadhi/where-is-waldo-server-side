@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const gameSchema = new Schema({
   startTime: {
     type: Number,
-    default: () => Date.now()
+    default: () => Date.now(),
   },
   elapsedTime: String,
   name: String,
@@ -13,23 +13,23 @@ const gameSchema = new Schema({
     {
       name: {
         type: String,
-        required: true
+        required: true,
       },
       coordinates: {
         x: {
           type: Number,
-          required: true
+          required: true,
         },
         y: {
           type: Number,
-          required: true
-        }
+          required: true,
+        },
       },
-    }
-  ]
+    },
+  ],
 });
 
-gameSchema.pre('save', function (next) {
+gameSchema.pre('save', function updateElapsedTime(next) {
   if (this.characters && this.characters.length === 0) {
     const elapsedTime = Date.now() - this.startTime;
 
@@ -37,6 +37,6 @@ gameSchema.pre('save', function (next) {
   }
 
   next();
-})
+});
 
 module.exports = mongoose.model('Game', gameSchema);

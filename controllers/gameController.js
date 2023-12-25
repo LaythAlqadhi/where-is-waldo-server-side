@@ -6,30 +6,23 @@ const Character = require('../models/character');
 
 exports.start_get = asyncHandler(async (req, res, next) => {
   await Game.deleteMany({ name: { $exists: false } });
-  
+
   const characters = await Character.find({}, { _id: 0 });
-  
-  const game = new Game({ characters: characters });
+
+  const game = new Game({ characters });
 
   await game.save();
-  
+
   res.status(200).json({
     id: game.id,
-    characters: game.characters
+    characters: game.characters,
   });
 });
 
 exports.validate_post = [
-  body('name')
-    .trim()
-    .notEmpty()
-    .escape(),
-  body('coordinates.x')
-    .notEmpty()
-    .isNumeric(),
-  body('coordinates.y')
-    .notEmpty()
-    .isNumeric(),
+  body('name').trim().notEmpty().escape(),
+  body('coordinates.x').notEmpty().isNumeric(),
+  body('coordinates.y').notEmpty().isNumeric(),
 
   asyncHandler(async (req, res, next) => {
     const { name, coordinates } = req.body;
@@ -40,44 +33,43 @@ exports.validate_post = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-      const game = await Game.findById(req.params.id);
+    const game = await Game.findById(req.params.id);
 
-      if (!game) {
-        return res.sendStatus(404);
-      }
+    if (!game) {
+      return res.sendStatus(404);
+    }
 
-      const character = game.characters.find(c => c.name === name);
+    const character = game.characters.find((c) => c.name === name);
 
-      if (character) {
-        const { x, y } = character.coordinates;
-        const { x: reqX, y: reqY } = coordinates;
+    if (character) {
+      const { x, y } = character.coordinates;
+      const { x: reqX, y: reqY } = coordinates;
 
-        if (Math.abs(x - reqX) <= 4 && Math.abs(y - reqY) <= 4) {
-          const updatedCharacters = game.characters.filter(c => c.name !== name);
-          game.characters = updatedCharacters;
+      if (Math.abs(x - reqX) <= 4 && Math.abs(y - reqY) <= 4) {
+        const updatedCharacters = game.characters.filter(
+          (c) => c.name !== name,
+        );
+        game.characters = updatedCharacters;
 
         if (game.characters.length === 0) {
           await game.save();
-          
-          return res.status(200).json({
-            message: 'Congratulations! You Win!',
-            characters: updatedCharacters
-          });
-        } else {
-          await game.save();
 
           return res.status(200).json({
-            message: 'Nice job! Character found.',
-            characters: updatedCharacters
+            message: 'Congratulations! You Win!',
+            characters: updatedCharacters,
           });
         }
-      } else {
-        return res.status(200).json({ message: 'Oops! Wrong coordinates.' });
+        await game.save();
+
+        return res.status(200).json({
+          message: 'Nice job! Character found.',
+          characters: updatedCharacters,
+        });
       }
-    } else {
-      return res.sendStatus(403);
+      return res.status(200).json({ message: 'Oops! Wrong coordinates.' });
     }
-  })
+    return res.sendStatus(403);
+  }),
 ];
 
 exports.end_post = [
@@ -90,31 +82,33 @@ exports.end_post = [
 
   asyncHandler(async (req, res, next) => {
     const { name } = req.body;
-    
+
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     if (name) {
       const game = await Game.findOneAndUpdate(
         { _id: req.params.id },
         {
           $set: {
-            name: name
+            name,
           },
-          $unset: { characters: 1 }
+          $unset: { characters: 1 },
         },
-        { new: true }
+        { new: true },
       );
 
-      game ? res.sendStatus(200) : res.sendStatus(403);
-    } else {
-      await Game.findByIdAndDelete(req.params.id);
-      res.sendStatus(200);
+      if (game) {
+        return res.sendStatus(200);
+      }
+      return res.sendStatus(403);
     }
-  })
+    await Game.findByIdAndDelete(req.params.id);
+    res.sendStatus(200);
+  }),
 ];
 
 exports.leaderboard_get = asyncHandler(async (req, res, next) => {
@@ -125,18 +119,10 @@ exports.leaderboard_get = asyncHandler(async (req, res, next) => {
   res.status(200).json(game);
 });
 
-
 exports.character_post = [
-  body('name')
-    .trim()
-    .notEmpty()
-    .escape(),
-  body('coordinates.x')
-    .notEmpty()
-    .isNumeric(),
-  body('coordinates.y')
-    .notEmpty()
-    .isNumeric(),
+  body('name').trim().notEmpty().escape(),
+  body('coordinates.x').notEmpty().isNumeric(),
+  body('coordinates.y').notEmpty().isNumeric(),
 
   asyncHandler(async (req, res, next) => {
     const { name, coordinates } = req.body;
@@ -144,18 +130,18 @@ exports.character_post = [
     const errors = validationResult(req);
 
     const character = new Character({
-      name: name,
+      name,
       coordinates: {
         x: coordinates.x,
-        y: coordinates.y
-      }
+        y: coordinates.y,
+      },
     });
 
     if (!errors.isEmpty()) {
-      return res.json({ errors: errors.array() });
-    } else {
-      await character.save();
-      res.status(200).json(character);
+      res.json({ errors: errors.array() });
+      return;
     }
-  })
+    await character.save();
+    res.status(200).json(character);
+  }),
 ];

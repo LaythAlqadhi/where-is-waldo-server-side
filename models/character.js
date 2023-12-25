@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const characterSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   coordinates: {
     x: {
       type: Number,
-      required: true
+      required: true,
     },
     y: {
       type: Number,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 });
 
 module.exports = mongoose.model('Character', characterSchema);
