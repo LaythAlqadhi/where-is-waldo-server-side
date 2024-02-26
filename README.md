@@ -9,10 +9,10 @@ Check out the web application [Where's Waldo](https://where-is-waldo-five.vercel
 - Game
 - Character
 
-## features
-- Designed using RESTful architectural style.
-- Getting the start time and elapsed time immediately in the model to prevent delays.
-- Validating and sanitizing client data using Express-validator.
+## Features
+- Utilized RESTful API architectural style for seamless communication.
+- Instantly retrieves start time and elapsed time within the model, minimizing delays.
+- Implemented data validation and sanitization using Express-validator for enhanced security.
 
 ## Installation
 1. **Clone the Repository:**
